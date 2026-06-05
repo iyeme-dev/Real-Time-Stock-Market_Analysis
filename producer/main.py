@@ -22,7 +22,7 @@ def main():
         producer.send(topic,result)
         print(f'Data sent to {topic} topic')
 
-        time.sleep(2)
+        time.sleep(15)
 
     producer.flush()
     producer.close()

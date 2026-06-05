@@ -20,15 +20,16 @@ The project is containerized with Docker Compose so that the full data pipeline 
 6. [Environment Variables](#environment-variables)
 7. [Setup and Installation](#setup-and-installation)
 8. [Docker Service Setup](#docker-service-setup)
-9. [Kafka Streaming](#kafka-streaming)
-10. [Spark Processing](#spark-processing)
-11. [PostgreSQL Storage](#postgresql-storage)
-12. [Reporting and Analytics](#reporting-and-analytics)
-13. [Monitoring and Logging](#monitoring-and-logging)
-14. [Troubleshooting](#troubleshooting)
-15. [Best Practices](#best-practices)
-16. [Key Takeaways](#key-takeaways)
-17. [Resources](#resources)
+9. [Usage Examples](#usage-examples)
+10. [Kafka Streaming](#kafka-streaming)
+11. [Spark Processing](#spark-processing)
+12. [PostgreSQL Storage](#postgresql-storage)
+13. [Reporting and Analytics](#reporting-and-analytics)
+14. [Monitoring and Logging](#monitoring-and-logging)
+15. [Troubleshooting](#troubleshooting)
+16. [Best Practices](#best-practices)
+17. [Key Takeaways](#key-takeaways)
+18. [Resources](#resources)
 
 ---
 
@@ -57,7 +58,7 @@ The pipeline extracts stock market data from an external API, produces the data 
 ## Architecture
 
 ### Data Pipeline Architecture
-
+![Data pipeline architecture](images/data-pipeline-architecture.gif)
 
 ### Architecture Flow
 
@@ -269,6 +270,81 @@ docker compose down
 docker ps
 ```
 
+
+## Usage Examples
+
+This section shows common commands for running and verifying the real-time stock market data pipeline.
+
+### 1. Start All Docker Services
+
+Start Kafka, Kafka UI, Spark, PostgreSQL, and pgAdmin using Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+### 2. Confirm Containers Are Running
+
+```bash
+docker ps
+```
+
+### 3. Run the Kafka Producer
+
+Run the producer script to extract stock market data from the API and send it to the Kafka `stock_analysis` topic:
+
+```bash
+python producer/main.py
+```
+
+Expected output:
+
+```text
+Data sent to stock_analysis topic
+```
+
+### 4. Monitor Kafka Messages with a Consumer
+
+Run the consumer script to confirm that stock market messages are being received from Kafka:
+
+```bash
+python consumer.py
+```
+
+Example output:
+
+```text
+Value Deserialized: {'date': '2026-06-02 13:50:00', 'symbol': 'TSLA', 'open': '422.7200', 'low': '422.0500', 'high': '422.8300', 'close': '422.0800'}
+```
+
+### 5. Run the Spark Streaming Job
+
+Submit the Spark job to read from Kafka, process the stock records, and write the results to PostgreSQL:
+
+```bash
+spark-submit --packages org.postgresql:postgresql:42.7.3 consumer.py
+```
+
+If the Spark script is inside another folder, update the file path. For example:
+
+```bash
+spark-submit --packages org.postgresql:postgresql:42.7.3 producer/consumer.py
+```
+
+### 6. Verify Data in PostgreSQL
+
+Open pgAdmin and run:
+
+```sql
+SELECT COUNT(*) FROM stocks;
+```
+
+### 7. Stop All Docker Services
+
+```bash
+docker compose down
+```
+
 ---
 
 ## Kafka Streaming
@@ -332,21 +408,6 @@ The processed records may include:
 | low | Lowest price |
 | high | Highest price |
 | close | Closing price |
-
-### Example Table
-
-```sql
-CREATE TABLE stock_prices (
-    id SERIAL PRIMARY KEY,
-    date DATE,
-    symbol VARCHAR(20),
-    open NUMERIC,
-    low NUMERIC,
-    high NUMERIC,
-    close NUMERIC,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
 
 ---
 
@@ -525,9 +586,3 @@ Check:
 ## Author
 
 **Iyeme Salubi**  
-
----
-
-## License
-
-This project is for educational and portfolio purposes.
