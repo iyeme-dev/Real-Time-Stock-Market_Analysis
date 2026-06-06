@@ -58,7 +58,7 @@ The pipeline extracts stock market data from an external API, produces the data 
 ## Architecture
 
 ### Data Pipeline Architecture
-![Data pipeline architecture](images/data-pipeline-architecture.gif)
+![Data pipeline architecture](images/data_pipeline.gif)
 
 ### Architecture Flow
 
